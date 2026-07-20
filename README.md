@@ -1,6 +1,6 @@
 
 # Notes Application Backend
-A robust backend service built with FastAPI, designed to manage user authentication and personal notes.
+A robust backend service built with FastAPI, designed to manage user authentication and personal notes. Uses "GROQ" API.
 
 ## Features
 - **User Authentication**: Secure registration and login using JWT (JSON Web Tokens).
