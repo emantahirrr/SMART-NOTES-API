@@ -1,18 +1,27 @@
-from openai import OpenAI
-from dotenv import load_dotenv
-import os
-from fastapi import HTTPException
-load_dotenv()
-client = OpenAI(
-    api_key=os.getenv("LLM_API_KEY"),
-    base_url=os.getenv("LLM_BASE_URL")
-)
-async def call_llm(messages: list[dict]) -> str:
-    try:
-        response = client.chat.completions.create(
-            model=os.getenv("LLM_MODEL"),
-            messages=messages,
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Groq API error: {str(e)}")
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from app.auth import current_user
+from app.db import get_db
+from app.models import Note as NoteModel
+from app.ai import call_llm
+from app.schemas import summarizeIn, summarizeOut
+
+router = APIRouter()
+
+@router.post("/summarize", response_model=summarizeOut)
+async def get_summary(
+    data: summarizeIn, 
+    user: str = Depends(current_user), 
+    db: Session = Depends(get_db)
+):
+    # Fetch the note by the ID provided in the request body
+    note = db.query(NoteModel).filter(NoteModel.id == data.notes_id).first()
+    if not note:
+        raise HTTPException(status_code=404, detail="Note not found")
+        
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": f"Summarize this note: {note.content}"}
+    ]
+    summary = await call_llm(messages)
+    return {"summary": summary}
