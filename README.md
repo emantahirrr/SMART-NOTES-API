@@ -7,6 +7,20 @@ A robust backend service built with FastAPI, designed to manage user authenticat
 - **Note Management**: CRUD operations for personal notes (Create, Read, Update, Delete).
 - **Database**: Managed via SQLite using SQLModel for object-relational mapping and Alembic for database migrations.
 
+## Details
+Scaffold the structure shown below; create a virtualenv and install dependencies.
+Models first: User and Note (with an owner_id foreign key). Generate the Alembic migration.
+Auth slice: register + login + current_user; verify in /docs.
+Notes CRUD: scope every query by current_user so cross-user reads are impossible.
+AI endpoints: summarise one note; then RAG over the user's notes for /ask.
+Smoke test the full flow.
+Tests: happy create, validation 422, 401 on protected route, and a test proving user A cannot read user B's note.
+Config: all secrets via environment (pydantic-settings); nothing hardcoded.
+Migrations: run alembic upgrade head on deploy — not auto-create.
+Rate limiting: protect login and AI endpoints (they're the abusable/costly ones).
+Errors & health: global exception handler returns clean JSON; add /healthz.
+Containerise: a working Dockerfile; document run/test/deploy in the README
+
 ## Installation
 
 1. **Clone the repository** and navigate to the project folder:
