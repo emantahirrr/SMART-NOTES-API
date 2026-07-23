@@ -14,7 +14,6 @@ async def get_summary(
     user: str = Depends(current_user), 
     db: Session = Depends(get_db)
 ):
-    # Fetch the note by the ID provided in the request body
     note = db.query(NoteModel).filter(NoteModel.id == data.notes_id).first()
     if not note:
         raise HTTPException(status_code=404, detail="Note not found")
